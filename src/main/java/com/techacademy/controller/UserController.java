@@ -42,7 +42,6 @@ public class UserController {
         return "user/register";
     }
 
-    //-----変更ここから-----
     /**User登録処理*/
     @PostMapping("/register")
     public String postRegister(@Validated User user, BindingResult res, Model model) {
@@ -56,26 +55,56 @@ public class UserController {
         //一覧画面へリダイレクト
         return "redirect:/user/list";
     }
-    //-----変更ここまで-----
 
-    /** User更新画面を表示*/
+    /** User更新画面を表示 改修前
     @GetMapping("/update/{id}/")
     public String getUser(@PathVariable("id") Integer id, Model model) {
+        // Modelに登録
+        model.addAttribute("user", service.getUser(id));
+        // User更新画面に遷移
+        return "user/update";
+    }
+     */
+
+    /** User更新画面を表示-改修後*/
+    @GetMapping("/update/{id}/")
+    public String getUser(@PathVariable("id") Integer id, User user, Model model) {
+        if(id != null) {
         //Modelに登録
         model.addAttribute("user", service.getUser(id));
         //User更新画面へ遷移
         return "user/update";
+        }else {
+            model.addAttribute("user", user);
+            return "user/update";
+        }
     }
 
-    /**User更新処理*/
+    /** User更新処理 改修前
     @PostMapping("/update/{id}/")
     public String postUser(User user) {
+        // User登録
+        service.saveUser(user);
+        // 一覧画面にリダイレクト
+        return "redirect:/user/list";
+    }
+    */
+
+    /**User更新処理-改修後*/
+    @PostMapping("/update/{id}/")
+    public String postUser(@Validated User user, BindingResult res, Model model) {
+        if(res.hasErrors()) {
+            //エラーあり
+            return getUser(null, user, model);
+        }
         //User登録
         service.saveUser(user);
         //一覧画面にリダイレクト
         return "redirect:/user/list";
     }
 
+
+    /** User削除処理 */
     @PostMapping(path="list", params="deleteRun")
     public String deleteRun(@RequestParam(name="idck") Set<Integer> idck, Model model) {
         // Userを一括削除
